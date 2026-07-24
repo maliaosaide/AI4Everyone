@@ -8,13 +8,15 @@ AI 正在重塑每个人与技术的关系。这个项目收集和整理高质�
 
 ### 1. AI 编程工具深度解析：全面对比与选型指南
 
-> 更新至 2026 年 5 月 | 覆盖 13+ 工具、6 大核心技术
+> 更新至 2026 年 7 月 24 日 | 覆盖 16+ 工具、7 大核心技术
 
 从 CLI 到桌面应用，从国际 IDE 到国产 IDE，从 IDE 扩展到多 Agent 编排——一份文档帮你搞清楚该用什么、怎么用。
 
-**覆盖的工具**：Claude Code、Codex CLI、OpenCode、Gemini CLI、Claude Code Desktop、Codex Desktop、Cursor、Windsurf、Augment Code、Trae、通义灵码、CodeBuddy、GitHub Copilot、Cline、Roo Code、Continue
+**覆盖的工具**：Claude Code、Codex CLI、OpenCode、Gemini CLI、Qwen Code、Trae Agent、Kimi Code、Claude Code Desktop、Codex Desktop、Cursor、Windsurf、Augment Code、Trae、Qoder（通义灵码演进）、CodeBuddy / WorkBuddy、GitHub Copilot、Cline、Roo Code、Continue
 
-**核心技术深度解析**：MCP（Model Context Protocol）、Agent Skills、Sub-agents 与 Agent Teams 编排、A2A 协议、Auto Dream 记忆巩固、Worktree 隔离
+**核心技术深度解析**：MCP（Model Context Protocol）、Agent Skills、Sub-agents 与 Agent Teams 编排、A2A 协议、Auto Dream 记忆巩固、Worktree 隔离、**Code + Work 双 Agent 范式与 Agent Harness**
+
+**2026-07 模型换代**：Claude Sonnet 5（6/30 新默认）/ Fable 5（6/9→下架→7/1 恢复）/ Opus 4.8、GPT-5.6 家族（Sol/Terra/Luna）、Kimi K3（2.8T、1M）、Qwen3.8（7/19 预览）
 
 ### 2. AI Agent 开发范式转移：从手写代码到声明式定义
 
@@ -58,21 +60,26 @@ Agent 开发正经历从"写代码描述如何做"到"写配置描述要什么"�
 |------|:-----------:|:---------:|:--------:|:----------:|
 | 发布方 | Anthropic | OpenAI | 开源社区 | Google |
 | 开源 | ❌ | ✅ Apache 2.0 | ✅ | ✅ Apache 2.0 |
-| 默认模型 | Claude Opus 4.7 | codex-mini (可选 GPT-5.x) | 任意 75+ 模型 | Gemini 2.5/3 |
+| 默认模型 | Opus 4.7 / Fable 5 | codex-mini (可选 GPT-5.6) | 任意 75+ 模型 | Gemini 3 |
 | 最大上下文 | 1M tokens | ~272K–1M+ | 取决于模型 | 1M tokens |
 | MCP | ✅ | ✅ | ✅ 原生 | ✅ |
 | 多 Agent | Sub-agents | 并行工具调用 | Agents + Subagents | ReAct 循环 |
 | 项目约定 | CLAUDE.md | AGENTS.md | AGENTS.md | GEMINI.md |
 | 定价 | $20–200/月 | $20/月起 | 免费 + API | 免费额度 |
 
-### 模型基准对比（2026 Q2）
+> † Gemini CLI 已于 2026-06-18 对消费版停服，迁移至 Google **Antigravity CLI**。
 
-| 基准测试 | Claude Opus 4.7 | GPT-5.5 | Gemini 3.1 Pro |
+### 模型基准对比（2026 年 7 月）
+
+> 各模型使用不同 agent harness 评测（Fable 5 用 Claude Code、GPT-5.6 用 Codex、Kimi K3 用 KimiCode），且多为厂商自报，横比仅供参考。
+
+| 基准测试 | Claude Fable 5 | GPT-5.6 Sol | Kimi K3 |
 |----------|:---------------:|:-------:|:--------------:|
-| SWE-Bench Verified | **87.6%** | ~82–85% | ~80.6% |
-| SWE-Bench Pro | **64.3%** | 58.6% | — |
-| Terminal-Bench 2.0 | 69.4% | **82.7%** | — |
-| 最适合 | 精确编码、多文件重构 | 自主终端任务、DevOps | 多模态推理、大上下文 |
+| DeepSWE | 70.0 | **73.0** | 67.5 |
+| Terminal-Bench 2.1 | 84.6 | **88.8** | 88.3 |
+| SWE Marathon（长程编码） | 35.0 | 39.0 | **42.0** |
+| Frontend Code Arena（盲评 Elo） | 1631 | 1618 | **1679（#1）** |
+| 最适合 | 顶配 agentic 编码、低幻觉 | 自主终端、DevOps | 长程编码、开源可自托管 |
 
 ### Agent 开发范式对比
 

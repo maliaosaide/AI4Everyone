@@ -1,6 +1,13 @@
 # AI 编程工具深度解析：从 CLI 到 IDE 的全景对比与选型指南
 
-> 更新于 2026 年 5 月。覆盖近半年（2025 Q4 – 2026 Q2）各工具的最新特性与前沿技术。
+> 更新于 2026 年 7 月 24 日。覆盖各工具截至 2026 年 7 月的最新特性与前沿技术。
+
+> **2026 年 7 月重大更新摘要**（相较 5 月版）：
+> - **模型换代（截至 7/24）**：Claude 当前阵列 = **Opus 4.8**（5/28）+ **Sonnet 5**（6/30，新默认）+ **Fable 5**（6/9 发布 → 6/12 因美国出口管制下架 → **7/1 恢复**，内部 Mythos 的公开版），**Opus 5** 尚未发布（"Honeycomb" 7/9 在 Cursor 短暂泄露）；OpenAI **GPT-5.6 家族**（旗舰 **Sol** + Terra + Luna 三档，6/26 预览、7 月初发布，新增 `max` 推理档）；阿里 **Qwen3.7-Max / Plus** 已 GA，**Qwen3.8**（2.4T）7/19 发布**预览版**、开源权重承诺"soon"但**无日期/无 license**；月之暗面 **Kimi K3**（2.8T MoE、1M 上下文）7/16 发布。
+> - **新工具**：阿里推出 **Qoder**（agentic 平台，基本取代通义灵码）；腾讯推出 **WorkBuddy**（通用办公 Agent）。
+> - **Codex 大改版**：演进为跨终端/IDE/Web/手机的 **"SUPER APP"**，Computer Use 从 Mac 扩展到 Windows，并作为 agent provider 接入 JetBrains / GitHub Copilot。
+> - **Agent 范式变动**：主流厂商普遍分化为「编程 Agent + 通用办公 Agent」双产品形态（详见 [6.7](#67-code--work-双-agent-范式与-agent-harness)）。
+> - **Gemini CLI 停服**：2026-06-18 起对消费版停服，迁移至 Google **Antigravity CLI**（agent 优先平台）；详见 [1.4](#14-gemini-cligoogle-️-已停服迁移至-antigravity-cli)。
 
 ---
 
@@ -44,15 +51,27 @@ cd your-project && claude
 
 **2025–2026 年最新能力：**
 
-- **Sub-agents（子代理）**：主代理可将子任务委派给并行子代理执行，实现多路并发处理
+- **Sub-agents（子代理）**：主代理可将子任务委派给并行子代理执行；**子代理可再派生子代理**（后台链路默认上限 5 层），实现多路并发
 - **Hooks 系统**：在工具调用前后注入自定义逻辑（验证、拦截、日志等）
 - **/effort 控制**：调整代理的推理深度，低 effort 快速迭代，高 effort 深度分析
-- **Computer Use**：与桌面应用交互，不局限于终端操作
+- **Computer Use**：与桌面应用交互，不局限于终端操作（2026.3 进入 Claude Code 与 Cowork 的研究预览）
 - **Ultraplan**：复杂任务的深度规划模式
-- **远程控制 / Dispatch**：将任务派发到远程机器或云环境后台执行
+- **远程控制 / Dispatch**：将任务派发到远程机器或云环境后台执行，支持跨手机/桌面单一连续会话
 - **CLAUDE.md / AGENTS.md**：项目级持久化约定，代理自动读取遵循
 
-**定价**：Pro $20/月（中等用量）、Max 5x $100/月、Max 20x $200/月（重度使用），API 按量计费。([claude.com/pricing](https://claude.com/pricing))
+**2026 年 7 月新增（v2.1.x 系列，据官方 What's New 与 releasebot）：**
+
+- **Agent View（`claude agents`）**：一屏查看所有 Claude Code 会话——哪些在跑、哪些等你确认、哪些已完成
+- **`/goal`**：设定完成条件，Claude 跨多轮持续推进直到条件满足
+- **`/code-review`**：直接产出正确性缺陷报告（不只是风格）
+- **`/usage`**：按 skill / subagent / plugin / MCP server 拆解你的额度消耗
+- **`/fork`、`/rewind`、`/cd`**：会话分叉到后台、回退到 `/clear` 之前、会话中途切换工作目录（不重建 prompt 缓存）
+- **Auto Mode 扩展**：Pro 计划可用，以 Sonnet 4.6 / Opus 替代权限弹窗（后台安全检查）；Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry 上无需 opt-in
+- **Fast Mode** 默认跑在 Opus 4.7；**`fallbackModel`** 可配最多 3 个备选模型按序回退
+- **Artifacts 调用 MCP 连接器**：发布的 artifact 在他人打开时可拉取实时数据并执行动作
+- **Claude Managed Agents**（Developer Platform，7.22）：模型 effort 设置、环境/记忆事件 webhook、会话播种等托管 Agent 能力
+
+**定价**：Pro $20/月（中等用量）、Max 5x $100/月、Max 20x $200/月（重度使用），API 按量计费。2026 年 7 月促销期间 Max/Team Premium 计划可访问 Fable 5，且周额度提升 50% 延续至 8 月 19 日。([claude.com/pricing](https://claude.com/pricing))
 
 ---
 
@@ -85,6 +104,14 @@ codex "your prompt"
 - **实时 Web 搜索**：代理可以搜索互联网获取最新信息
 - **代码审查预设**：内置多种审查策略，可本地运行代码审查
 - **会话恢复**：支持中断后恢复，保留完整上下文和转录
+
+**2026 年 7 月大改版——"SUPER APP"：**
+
+- **跨端统一**：Codex 从单一 CLI 演进为横跨**终端 / IDE / Web / 手机**的"超级应用"，随处接力、实时协作（[openai.com/index/introducing-upgrades-to-codex](https://openai.com/index/introducing-upgrades-to-codex/)）
+- **Computer Use 扩展到 Windows**：此前 Mac 专享的"后台计算机使用"已登陆 Windows，代理不再局限于代码/终端/插件/浏览器预览，可操作整个桌面（[kingy.ai 报道](https://kingy.ai/news/openai-just-brought-codex-computer-use-to-windows-what-pc-users-get-now/)）
+- **子代理 + 记忆 + 分页线程历史**：CLI（v0.144.x）新增子代理派生、跨会话记忆、可搜索的分页线程历史与高效恢复（[openai/codex releases](https://github.com/openai/codex/releases)）
+- **Codex 作为 agent provider**（7/7）：以公共预览接入 **JetBrains IDE 与 GitHub Copilot**，配套 Hooks 与更丰富的 MCP server 管理（[GitHub changelog](https://github.blog/changelog/2026-07-07-codex-as-agent-provider-and-agentic-enhancements-in-jetbrains-ides/)）
+- **Plugins / Triggers / Goals**（3–4 月铺垫）：Codex 正从"一次性 CLI"转向"管理 agent 团队的操作面"
 
 **安装及定价**：ChatGPT Plus（$20/月）包含，Pro 及以上更高配额。
 
@@ -125,9 +152,13 @@ opencode
 
 ---
 
-### 1.4 Gemini CLI（Google）
+### 1.4 Gemini CLI（Google）⚠️ 已停服，迁移至 Antigravity CLI
 
 **概述**：Google 于 2025 年 6 月 25 日发布的**开源** AI 终端代理。凭借 Gemini 模型的百万级上下文窗口和多模态能力脱颖而出。
+
+> ⚠️ **已停服（2026-06-18），继任者为 Antigravity CLI**：Google 于 2026-05-19（I/O）宣布把 Gemini CLI 与 Gemini Code Assist IDE 扩展统一收拢进 **Google Antigravity**（agent 优先开发平台）。**2026-06-18 起，对 Google AI Pro / Ultra 及免费个人用户停止服务**（企业 Vertex AI / 付费 API key 不受影响；Gemini Code Assist for GitHub 7/17 完全关停）。继任者 **Antigravity CLI** 用 Go 重写、更快，支持异步多 agent 编排，保留 Skills / Hooks / Subagents / Extensions（改以 plugin 形式）。社区争议：Google 接受了 6000+ 开源 PR 后将消费版转向闭源 Antigravity，被戏称"进了 Google 坟场"。([developers.googleblog.com](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/))
+>
+> 以下内容保留作为 Gemini CLI 的历史参考；新项目请直接采用 **Antigravity CLI**。
 
 **安装**：
 ```bash
@@ -158,13 +189,27 @@ npm install -g @google/gemini-cli
 
 ---
 
-### 1.5 CLI 工具横向对比
+### 1.5 厂商官方 CLI（2026 年新增）
+
+2026 年的一个明显趋势：大模型厂商不再只提供模型，而是亲自下场发布与 Claude Code 对标的终端编程代理，把"自家旗舰模型 + Agent 运行时"打包交付。
+
+**Qwen Code（阿里）**：Qwen 团队官方 CLI，开源（[github.com/QwenLM/qwen-code](https://github.com/QwenLM/qwen-code)），`npm install -g` 安装，基于 Qwen3-Coder 系列优化。定位是让 Qwen3-Coder 在终端原生跑 agentic 编程，与 Qoder IDE、通义灵码共享模型基座。
+
+**Trae Agent（字节跳动）**：字节开源的 LLM Agent 工具包（[github.com/bytedance/trae-agent](https://github.com/bytedance/trae-agent)），面向软件工程任务，支持文件编辑、bash 执行、结构化思考、多模型 provider 接入，与 Trae IDE 解耦、可独立用于终端。
+
+**Kimi Code（月之暗面）**：月之暗面的编程代理，可进入 CLI 与 IDE，读写文件、执行命令、搜索代码、抓取网页，并能生成子代理并行执行子任务；基于 **Kimi K3**（2.8T MoE、1M 上下文，2026.7.16 发布）。配套 **Kimi Work** 面向本地工作流（挂载本地文件夹、WebBridge 浏览、运行 Python、定时任务，改文件/跑代码前需用户确认）。
+
+> 这三款标志着"模型厂商 = Agent 提供方"格局成型——开源 CLI 既是对 Claude Code 的追赶，也把各家旗舰模型（Qwen3-Coder、豆包、Kimi K3）直接送到开发者终端。
+
+---
+
+### 1.6 CLI 工具横向对比
 
 | 维度 | Claude Code | Codex CLI | OpenCode | Gemini CLI |
 |------|-------------|-----------|----------|------------|
 | **发布方** | Anthropic | OpenAI | 开源社区 | Google |
 | **开源性** | 闭源 | 开源 (Apache 2.0) | 开源 | 开源 (Apache 2.0) |
-| **默认模型** | Claude Opus 4.7 | codex-mini-latest（可选 GPT-5.x） | 任意 75+ 模型 | Gemini 2.5/3 |
+| **默认模型** | Opus 4.7 / Fable 5 | codex-mini-latest（可选 GPT-5.6） | 任意 75+ 模型 | Gemini 3 |
 | **最大上下文** | 1M tokens | ~272K–1M+ | 取决于模型 | 1M tokens |
 | **沙箱执行** | 本地直接执行 | 三级内核沙箱 | 本地执行 | 本地执行 |
 | **云端委派** | Dispatch | Cloud Exec | — | — |
@@ -175,6 +220,8 @@ npm install -g @google/gemini-cli
 | **项目约定** | CLAUDE.md | AGENTS.md | AGENTS.md | GEMINI.md |
 | **定价** | $20-200/月 | $20/月起 | 免费 + API | 免费额度 + API |
 | **SWE-Bench 导向** | 强（深度推理） | 强（自主执行） | 取决于模型 | 中（上下文优势） |
+
+> ⚠️ **Gemini CLI 已于 2026-06-18 停服**（消费版），继任者为 Google **Antigravity CLI**；上表该列仅作历史参考。
 
 ---
 
@@ -236,6 +283,12 @@ npm install -g @google/gemini-cli
 - **Skills 系统**：与 CLI 版本共享的模块化能力定义
 - **Automations**：可编排的自动化流水线
 
+**2026 年 7 月更新：**
+
+- **与 ChatGPT 桌面版合并**（v26.707，7/14）：新版桌面应用整合 ChatGPT 与 Codex，成为统一的"SUPER APP"入口
+- **Computer Use 全平台**：后台计算机使用从 Mac 扩展到 **Windows**，代理可操控任意桌面应用
+- **手机端接力**：Web / 手机端可查看并继续桌面端的 Codex 任务
+
 **定价**：ChatGPT Plus（$20/月）包含基础使用；Pro/Team/Enterprise 更高配额。
 
 ---
@@ -288,6 +341,16 @@ AI 原生 IDE 并非在传统编辑器上加插件，而是从底层设计就以
 - **背景/云端代理**：任务可在后台或云端异步执行
 - **多模型支持**：Claude、GPT、Gemini、Composer 等灵活切换
 
+**2026 年：Cursor 3 + Automations（重大架构升级）：**
+
+- **Cursor 3**（[blog](https://cursor.com/blog/cursor-3)）：从 IDE 升级为"以 agent 为中心的统一工作区"——全新 **Agents Window**（`Cmd+Shift+P → Agents Window`）、多仓库布局、本地↔云端 agent 无缝交接（本地用 Composer 2 快速迭代，长任务转到云端 VM 继续跑）
+- **Automations**（6–7 月）：从**代码库变更 / Slack 消息 / 定时器自动触发** agent（不再需人工 prompt），用于代码审查、安全审计、PagerDuty 事件响应、周报汇总；官方称每小时跑数百次自动化，并配套 Computer Use 工具（[TechCrunch](https://releasebot.io/updates/cursor)）
+- **Cloud Subagents**（3.7）：云端子代理跑在独立 VM，并行工作、PR 看护、可复用快照
+- **Composer 2.5**：当前自研模型，文件树级多文件重构；3.3 加入 Build in Parallel 子代理
+- **Cursor in Slack / iOS**（6/30–7/17）：手机端 App + Slack 内多仓库跨频道协作
+- **Cloud Agent Hooks**（3.11，7/10）：`beforeSubmitPrompt`、`afterAgentThought`、`subagentStart` 等可观测/控制 hook，支持自纠错循环
+- **Grok 4.5**（7/8）：接入 xAI Grok 4.5 模型
+
 **定价**：免费版基础功能；Pro $20/月（含 Agent Mode）；Business $40/月。
 
 ---
@@ -316,6 +379,12 @@ AI 原生 IDE 并非在传统编辑器上加插件，而是从底层设计就以
 - **浏览器预览**：IDE 内预览前端应用
 - **AI 查找替换**：语义理解的高级搜索替换
 
+**2026 年 H2：向 "Devin Desktop" 演进 + SWE-1.7：**
+
+- **品牌整合为 Devin Desktop**：Cascade 本地代理逐步被 **Devin Local** 取代，Windsurf IDE 与 Devin 云代理深度整合为 Cognition 统一平台；一键把本地会话委托给 Devin（在独立 VM 运行）（[digitalapplied](https://www.digitalapplied.com/blog/windsurf-becomes-devin-desktop-ide-migration-2026)）
+- **SWE-1.7 模型**（7 月中旬）：SWE-1 家族最新版（SWE-1 → 1.5 → 1.7），并行工具调用更频繁、更少循环；Devin 在 SWE-bench Verified 达 75–78%（[Scott Wu / Cognition](https://x.com/ScottWu46/status/2077078038744109398)）
+- **Devin CLI + Devin Review**：能力延伸到终端代理与代码审查，形成 **Devin（云）+ Windsurf/Devin Local（IDE）+ Devin CLI（终端）** 三件套
+
 **定价**：Free 免费（有限额度）、Pro $20/月（2026 年 3 月调价后统一）、Max $200/月；Teams $40/用户/月。([windsurf.com/pricing](https://windsurf.com/pricing))
 
 ---
@@ -343,6 +412,8 @@ AI 原生 IDE 并非在传统编辑器上加插件，而是从底层设计就以
 - **Web MCP**：通过 MCP 连接实时 Web 数据源（BrightData 集成）
 - **并行 Worktree 代理**：多个代理在隔离 worktree 中并行工作
 - **PulseMCP 生态**：10,000+ 已发布 MCP 服务器集成
+- **Intent（2026.2 公测）**：协调者→并行实现者→验证者的多代理编排，进入公开测试
+- **Daemon 模式 + Cosmos CLI**：50 并发会话、Slack 集成、企业访问控制；Cosmos CLI 把 agentic 能力延伸到 IDE 之外
 
 **定价**：Pro 个人版免费层 + 付费计划。
 
@@ -368,7 +439,7 @@ AI 原生 IDE 并非在传统编辑器上加插件，而是从底层设计就以
 
 ## 4. 国内 AI 编程 IDE
 
-国内 AI 编程工具在 2025–2026 年经历了爆发式增长。字节跳动、阿里、腾讯等大厂纷纷推出自研 AI IDE，从最初跟随 Cursor 的步伐，到逐渐形成差异化特色——阿里云生态集成、设计转代码、微信生态集成等。以下介绍三款最具代表性的产品。
+国内 AI 编程工具在 2025–2026 年经历了爆发式增长。字节、阿里、腾讯、百度、月之暗面、智谱等纷纷推出自研 AI IDE / Agent，从最初跟随 Cursor，到逐渐形成差异化特色，并在 2026 年出现两个结构性变化：阿里把通义灵码演进为 **Qoder** agentic 平台；各厂商普遍分化为「编程 Agent（Code）+ 通用办公 Agent（Work）」双产品（见 [4.4](#44-2026-年新格局qoderworkbuddy-与code--work-双-agent-范式)）。下面先介绍三款最具代表性的"主力 IDE"，再在 4.4 集中梳理 2026 年的新玩家与新范式。
 
 ### 4.1 Trae（字节跳动）
 
@@ -396,6 +467,7 @@ AI 原生 IDE 并非在传统编辑器上加插件，而是从底层设计就以
 | 2025.4 | Agent 系统 + MCP 上线，国内版发布 |
 | 2025 H2 | 接入 DeepSeek、豆包等国产模型，免费额度大幅扩展 |
 | 2026 初 | Trae 2.0、SOLO 模式、Token 计费计划 |
+| 2026.7 | **TRAE APP**：IDE 与手机 App 同步、跨设备工作流接力（7/21）；Trae Work 通用办公模式 |
 
 **定价**：国内版基础免费（额度慷慨），高级功能 Token 计费或订阅。
 
@@ -468,23 +540,67 @@ AI 原生 IDE 并非在传统编辑器上加插件，而是从底层设计就以
 
 ---
 
-### 4.4 国内 AI IDE 横向对比
+### 4.4 2026 年新格局：Qoder、WorkBuddy 与「Code + Work」双 Agent 范式
 
-| 维度 | Trae（字节） | 通义灵码（阿里） | CodeBuddy（腾讯） |
+2026 年中国 AI 编程赛道出现两个结构性变化：一是阿里把通义灵码升级/演进为独立的 **Qoder** agentic 平台；二是主流厂商普遍从"单一编程 Agent"走向「**编程 Agent（Code）+ 通用办公 Agent（Work）**」双产品形态。
+
+#### Qoder（阿里巴巴）——通义灵码的 agentic 演进
+
+**概述**：Qoder（[qoder.com](https://qoder.com/en)）是阿里巴巴推出的 agentic 平台，口号 "Think deeper, build better"，定位 "Agentic Platform for Real Work"。业界普遍认为它已基本取代通义灵码成为阿里的旗舰编程产品——通义灵码作为模型基座/插件仍保留，但新能力重心已转向 Qoder。它从"IDE 插件"跃升为面向"真实交付"的多 Agent 平台。
+
+**产品矩阵**：
+
+| 产品 | 定位 |
+|------|------|
+| **Qoder Desktop** | 自主开发桌面端，面向真实软件交付 |
+| **QoderWork** | 本地优先、自驱动的通用办公 AI 伙伴（对标 Claude Cowork / WorkBuddy） |
+| **终端原生 CLI** | 终端编程伙伴 + 可在其上构建的 Agent 引擎 |
+| **企业云 Agent 平台** | 全托管云端 Agent，"7×24 AI 员工"，面向企业多场景集成 |
+
+**核心能力**：多 Agent 专家协作（端到端交付）、Memory & Rules（学习用户习惯）、Skills & Plugins、全上下文感知（图片/代码/目录）、**'Wikilize' Your Codebase**（自动揭示架构与设计）、JetBrains 插件。
+
+#### WorkBuddy（腾讯）——CodeBuddy 的办公搭档
+
+腾讯在 CodeBuddy（编程）之外推出 **WorkBuddy**，二者正好对应 Anthropic 的 Claude Code + Cowork。官方披露 CodeBuddy 覆盖腾讯 95% 以上工程师，WorkBuddy 用于人机混合开发、帮小团队更快迭代产品。相比代码开发，WorkBuddy 面向更广的生产力场景——文档处理、内容整理、协作任务、通用办公，并依托微信、文档、会议生态。([36kr 报道](https://eu.36kr.com/en/p/3878580738158852))
+
+#### 其他新玩家
+
+- **Kimi Code / Kimi Work（月之暗面）**：Kimi Code 进入 CLI 与 IDE，读写文件、执行命令、生成子代理并行任务；Kimi Work 面向本地工作流（挂载本地文件夹、WebBridge 浏览、运行 Python、定时任务）。基于 Kimi K3。
+- **ZCode（智谱 AI）**：深耕代码 Agent 路线，用户基数暂小于 WorkBuddy / Trae Work，想象空间集中在开发者场景。
+- **Comate（百度）**：已从插件演进为带多模态与多 Agent 协作的 AI IDE，宣称是业界首个多模态 AI IDE。
+
+#### 「Code + Work」双 Agent 范式（2026 关键趋势）
+
+| 厂商 | 编程 Agent（Code） | 通用办公 Agent（Work） |
+|------|------|------|
+| **Anthropic** | Claude Code | Claude Cowork |
+| **腾讯** | CodeBuddy | WorkBuddy |
+| **字节跳动** | Trae（Code 模式） | Trae Work |
+| **月之暗面** | Kimi Code | Kimi Work |
+| **阿里** | Qoder（Desktop） | QoderWork |
+
+> 这一分化表明：AI 编程工具正从"只在 IDE 里写代码"扩展为"贯穿编码 + 通用办公的全场景 Agent"。选型时不仅要选 Code 工具，还要考虑 Work 工具是否匹配团队协作与办公生态。
+
+---
+
+### 4.5 国内 AI IDE 横向对比
+
+| 维度 | Trae（字节） | Qoder / 通义灵码（阿里） | CodeBuddy（腾讯） |
 |------|:-----------:|:------------:|:---------------:|
 | **发布方** | 字节跳动 | 阿里云 | 腾讯 |
-| **首发时间** | 2025.1 | 2024 底（插件）/ 2025 IDE | 2025.7（IDE） |
-| **核心模型** | 豆包 + DeepSeek | Qwen3-Coder | 混元 + DeepSeek |
+| **首发时间** | 2025.1 | 2024 底（灵码）/ 2026 Qoder 平台 | 2025.7（IDE） |
+| **核心模型** | 豆包 + DeepSeek | Qwen3-Coder / Qwen3.7 | 混元 + DeepSeek |
 | **国际模型** | Claude/GPT（国际版） | — | Claude/GPT/Gemini |
-| **杀手锏** | SOLO 全自主模式、免费 | Quest 自主编程、魔搭 MCP 广场 | 微信生态、一站式部署 |
+| **杀手锏** | SOLO 全自主模式、免费 | Qoder 多 Agent 平台、'Wikilize' 代码库 | 微信生态、一站式部署 |
+| **配套 Work Agent** | Trae Work | QoderWork | WorkBuddy |
 | **MCP** | 完整 | 完整 + 魔搭 3000+ 服务 | MCP + ACP 双协议 |
-| **多 Agent** | 自定义代理团队 | Quest + Agentic Chat 多智能体 | Plan + Craft 分工 |
-| **开源性** | Trae Agent 开源 | 闭源 | 闭源 |
+| **多 Agent** | 自定义代理团队 | Qoder 多专家协作 + Quest | Plan + Craft 分工 |
+| **开源性** | Trae Agent 开源 | 闭源（Qwen Code 开源） | 闭源 |
 | **定价** | 基础免费 | 个人免费 / 企业 ¥79/月起 | 个人免费/试用 |
-| **代表指标** | 月活 160 万+ | CSDN 横评国产第一（8.2–8.5） | — |
-| **最佳场景** | 独立开发、原型迭代 | Java/Go 后端、阿里云生态 | 微信小程序、腾讯云 |
+| **代表指标** | 月活 160 万+ | CSDN 横评国产第一（8.2–8.5） | CodeBuddy 覆盖腾讯 95% 工程师 |
+| **最佳场景** | 独立开发、原型迭代 | Java/Go 后端、阿里云生态、真实交付 | 微信小程序、腾讯云 |
 
-### 4.5 国产 vs 国际 IDE 综合比较
+### 4.6 国产 vs 国际 IDE 综合比较
 
 | 维度 | 国际代表（Cursor/Windsurf） | 国内代表（Trae/通义灵码/CodeBuddy） |
 |------|---------------------------|----------------------------------|
@@ -531,6 +647,8 @@ IDE 扩展的门槛最低——不需要换编辑器，在你已有的 VS Code �
 
 **2026 年重要计费变更**：GitHub 于 2026 年 6 月 1 日起从 Premium Request Units (PRUs) 转向 **GitHub AI Credits**（基于 token 消耗的用量计费）。代码补全和 Next Edit 建议仍然免费无限。大规模的自主代理任务消耗大量 credits，需关注用量控制。([github.blog](https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/))
 
+**2026 年 7 月：Codex 深度集成 + Agent Mode 成熟**：Copilot 将 OpenAI **Codex** 作为一等模型选项接入 Agent Mode / Chat / 补全（自动按任务选模型，重活路由到 Codex），并与 Codex 互为 agent provider（7/7 Codex 反向接入 JetBrains / Copilot）。Agent Mode 支持多步自主执行、后台 agent、PR 审查 agent——Copilot 正从"补全 + 对话"演化为"多 agent 编码系统"。
+
 ---
 
 ### 5.2 Cline
@@ -575,6 +693,8 @@ IDE 扩展的门槛最低——不需要换编辑器，在你已有的 VS Code �
 **独特价值**：对大型变更，先启用 Architect 模式做高层设计，再切到 Code 模式实现，最后用 Debug 模式验证——每个角色使用针对性的模型和设置。
 
 **定价**：开源免费，API 费用自理。
+
+> **新兴：Kilo Code**（[kilo.ai](https://kilo.ai)）——2026 年出现的新开源 agent，融合 Cline + Roo Code 的能力，覆盖 VS Code / JetBrains / CLI / Cloud 四端、500+ 模型 BYOK，并加了 KiloClaw 托管云层，可视为 Cline/Roo 路线的一次"集大成"合并。
 
 ---
 
@@ -1232,7 +1352,28 @@ Git worktree 允许同一仓库拥有多个并行工作目录，每个目录有�
 
 ---
 
-### 6.7 技术演进总结
+### 6.7 Code + Work 双 Agent 范式与 Agent Harness
+
+#### 6.7.1 从"编程 Agent"到"全场景 Agent"
+
+2026 年 H1 最显著的结构性变化，是各厂商把单一编程 Agent 拆分为「**Code（编程）+ Work（通用办公）**」两条产品线（详见 [4.4](#44-2026-年新格局qoderworkbuddy-与code--work-双-agent-范式)）。驱动这一分化的原因是：编码任务（确定性高、强工具调用、长会话）与通用办公任务（文档、邮件、协作、跨应用操作）对 Agent 的能力侧重点不同——前者要 SWE-bench 级的代码精度与终端/IDE 深度集成，后者要更广的工具连接（Google Drive、Gmail、企业系统）与 Computer Use 能力。代表：Anthropic Claude Code + Cowork、腾讯 CodeBuddy + WorkBuddy、字节 Trae + Trae Work、月之暗面 Kimi Code + Kimi Work、阿里 Qoder + QoderWork。
+
+#### 6.7.2 Agent Harness（代理运行时）
+
+决定一个 Agent 上限的，往往不是模型本身，而是驱动它的**运行时（harness）**——即承载 ReAct 循环、工具调度、权限控制、上下文/记忆管理、子代理编排、沙箱的那层框架。Claude Code、Codex CLI、Cursor、Qoder 本质上都是"模型 + harness"的组合：
+
+| harness 能力 | 说明 |
+|------|------|
+| 工具循环 | ReAct / Plan-Act 循环、并行工具调用、子代理派生（含嵌套） |
+| 上下文管理 | Auto Dream 记忆巩固、Skills 渐进式加载、`/rewind` 压缩摘要 |
+| 权限与沙箱 | 三级内核沙箱、人在回路审批、文件系统隔离（worktree） |
+| 可观测性 | 会话转录、`/usage` 额度拆解、Agent View 全局视图 |
+
+> 这也是"模型厂商亲自下场做 CLI"（Qwen Code、Trae Agent、Kimi Code）的底层逻辑：仅卖模型不够，必须提供一个能把模型能力充分释放的 harness。**harness 质量**（工具描述清晰度、上下文工程、记忆策略）已成为 2026 年 Agent 产品差异化的核心。
+
+---
+
+### 6.8 技术演进总结
 
 | 技术 | 2024 状态 | 2025 状态 | 2026 Q2 状态 | 未来方向 |
 |------|----------|----------|-------------|---------|
@@ -1249,11 +1390,11 @@ Git worktree 允许同一仓库拥有多个并行工作目录，每个目录有�
 
 ### 7.1 综合能力对比
 
-| 维度 | Claude Code | Codex | OpenCode | Gemini CLI | Cursor | Windsurf | Augment | Trae | 通义灵码 | CodeBuddy | Copilot | Cline |
+| 维度 | Claude Code | Codex | OpenCode | Gemini CLI | Cursor | Windsurf | Augment | Trae | Qoder/灵码 | CodeBuddy | Copilot | Cline |
 |------|:---------:|:-----:|:--------:|:----------:|:------:|:--------:|:-------:|:----:|:------:|:---------:|:-------:|:-----:|
 | **类型** | CLI+桌面 | CLI+桌面 | CLI+桌面 | CLI | IDE | IDE | IDE | IDE | IDE | IDE | 扩展 | 扩展 |
 | **开源性** | 闭源 | 开源 | 开源 | 开源 | 闭源 | 闭源 | 闭源 | 部分开源 | 闭源 | 闭源 | 闭源 | 开源 |
-| **默认模型** | Claude | codex-mini/GPT-5.x | 任意 | Gemini | 多模型 | 多模型 | 多模型 | 豆包/DS | Qwen3-Coder | 混元/DS | GPT | 任意 |
+| **默认模型** | Opus 4.7/Fable 5 | codex-mini/GPT-5.6 | 任意 | Gemini | 多模型 | 多模型 | 多模型 | 豆包/DS | Qwen3-Coder/3.7 | 混元/DS | GPT | 任意 |
 | **Agent Mode** | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 | 原生 |
 | **MCP** | 完整 | 完整 | 原生 | 完整 | 完整+市场 | 支持 | MCP-First | 完整 | 完整 | MCP+ACP | 完整 | 完整+市场 |
 | **A2A** | — | — | — | — | — | — | 支持 | — | — | — | — | — |
@@ -1282,14 +1423,33 @@ Git worktree 允许同一仓库拥有多个并行工作目录，每个目录有�
 
 ### 7.3 模型能力导向对比
 
-数据来源：Anthropic 官方公告（[anthropic.com/news/claude-opus-4-7](https://www.anthropic.com/news/claude-opus-4-7)）、OpenAI GPT-5.5 公告（[openai.com/index/introducing-gpt-5-5](https://openai.com/index/introducing-gpt-5-5/)）、第三方独立评测（[vals.ai/benchmarks/swebench](https://www.vals.ai/benchmarks/swebench)）。时间：2026 年 4–5 月。
+数据来源：Moonshot Kimi K3 发布博客、Anthropic 官方、Artificial Analysis / whatllm / benchlm / vellum 等第三方评测。时间：2026 年 7 月。
 
-| 基准测试（2026 Q1–Q2） | Claude Opus 4.7 | GPT-5.5 | Gemini 3.1 Pro |
-|---------------------|:---------------:|:-------:|:----------------:|
-| SWE-Bench Verified | **87.6%** | ~82–85% | ~80.6% |
-| SWE-Bench Pro | **64.3%** | 58.6% | — |
-| Terminal-Bench 2.0 | 69.4% | **82.7%** | — |
-| 适用场景 | 精确编码、多文件重构、低幻觉 | 自主终端任务、DevOps、长时运行 | 上下文理解、多模态推理 |
+> ⚠️ **重要**：下表各模型使用了不同的 agent harness 评测——Kimi K3 用 KimiCode、Fable 5 / Opus 4.8 用 Claude Code、GPT-5.6 Sol 用 Codex。跨模型横比仅供参考，且多为厂商自报，Moonshot 自己也承认 K3 整体仍落后于 Fable 5 与 GPT-5.6 Sol。
+
+| 基准测试（2026 年 7 月） | Claude Fable 5 | Claude Opus 4.8 | GPT-5.6 Sol | Kimi K3 | Qwen3.7-Max |
+|---------------------|:---------------:|:---------------:|:-------:|:-------:|:-------:|
+| DeepSWE | 70.0 | 59.0 | **73.0** | 67.5 | — |
+| Program Bench | 76.8 | 71.9 | 77.6 | **77.8** | — |
+| Terminal-Bench 2.1 | 84.6 | 84.6 | **88.8** | 88.3 | 69.7（v2.0） |
+| SWE Marathon（长程编码） | 35.0 | 40.0 | 39.0 | **42.0** | — |
+| Frontend Code Arena（盲评 Elo） | 1631 | — | 1618 | **1679（#1）** | — |
+| SWE-Bench Verified（厂商自报） | ~95% | 69.2%（Pro） | — | — | 80.4 |
+| GPQA Diamond | — | — | — | 93.5% | — |
+| 上下文窗口 | — | — | — | 1M | 1M |
+| 架构 / 参数 | 闭源 | 闭源 | 闭源 | 2.8T MoE（激活 16/896） | 闭源（agent-era 旗舰） |
+| 开源权重 | ❌ | ❌ | ❌ | ✅（7.27 放出） | ❌ |
+| 最适合 | 顶配 agentic 编码、低幻觉 | 企业级编码、性价比 | 自主终端、DevOps | 长程编码、前端、可自托管 | 国产 Agent 旗舰、MCP 强 |
+
+**模型换代脉络**（截至 2026-07-24）：
+
+- **Claude**：`Opus 4.7 → Opus 4.8`（5/28）→ `Sonnet 5`（6/30，**新默认**，$2/$10）→ `Fable 5`（6/9 发布 → 6/12 因美国出口管制下架 → 7/1 恢复，内部 Mythos 的公开版）；`Opus 5` **尚未发布**（"Honeycomb" 7/9 在 Cursor 短暂泄露，7/23 传闻未兑现）。
+- **OpenAI**：`GPT-5.5 → GPT-5.6 家族`（旗舰 **Sol** + Terra + Luna 三档，6/26 预览、7 月初发布，新增 `max` 推理档）。
+- **阿里**：`Qwen3.6 → Qwen3.7-Max/Plus`（GA）→ `Qwen3.8`（2.4T，7/19 **预览版**，开源权重承诺"soon"但无定档/无 license）。
+- **月之暗面**：`K2.6 → K2.7 Code → K3`（7/16，2.8T MoE、1M 上下文，权重 7/27 放出）。
+- 另：**GLM-5.2**、**DeepSeek V4** 亦在 7 月各类评测/横评中活跃。
+
+> ⚠️ 独立评测提示：Moonshot 自承 Kimi K3 整体仍落后 Fable 5 / GPT-5.6 Sol；阿里自称 Qwen3.8"仅次于 Fable 5"但**尚无公开榜单佐证**（LMArena 曾以代号 "Kaleb" 盲测）。"开源/国产逼近前沿"已成事实，但具体顺位仍待独立评测落地。
 
 ---
 
@@ -1307,8 +1467,8 @@ Git worktree 允许同一仓库拥有多个并行工作目录，每个目录有�
 | **企业/超大代码库** | Augment Code | GitHub Copilot | Context Engine 专为大型代码库设计 |
 | **不换编辑器** | GitHub Copilot + Cline | Continue | Copilot 补全 + Cline 代理 + Continue 索引 |
 | **预算有限** | OpenCode + Cline + Continue | — | 全开源方案，仅付 API 费 |
-| **Google 生态** | Gemini CLI | Gemini Code Assist | 最大免费额度，大上下文优势 |
-| **国内开发 / 中文优先** | 通义灵码（阿里） | Trae | 综合评分最高、Java/Go/云原生领先 |
+| **Google 生态** | Antigravity CLI（原 Gemini CLI） | Gemini Code Assist | agent 优先平台，大上下文（Gemini CLI 已 6/18 停服） |
+| **国内开发 / 中文优先** | Qoder / 通义灵码（阿里） | Trae | 综合评分最高、Java/Go/云原生、Qoder 多 Agent 平台 |
 | **设计转代码 / 多模态** | Trae | 通义灵码 | SOLO 全自主模式、设计输入 |
 | **微信生态 / 小程序** | CodeBuddy（腾讯） | Trae | 微信/腾讯云一站式闭环 |
 | **企业合规 / 私有部署** | CodeBuddy / 通义灵码 企业版 | — | 数据不出境、VPC 私有化 |
@@ -1328,11 +1488,12 @@ CI/CD:      Gemini CLI / Codex CLI（流水线集成）
 编排:       Claude Code Desktop（多代理管理）
 
 国内方案（中文生态优先）：
-日常编码:    Trae（免费、中文优化、SOLO 模式快速原型）
-阿里云后端:  通义灵码（Java/Go + 云原生，魔搭 MCP 广场）
+日常编码:    Trae（免费、中文优化、SOLO 模式）/ Qoder（阿里，多 Agent 真实交付）
+阿里云后端:  Qoder / 通义灵码（Java/Go + 云原生，魔搭 MCP 广场，Qwen3-Coder）
 微信/云部署: CodeBuddy（小程序 + CloudBase 一站式）
-重活代理:    OpenCode + DeepSeek（开源 + 国产模型）
-混合:       Trae 开发 + Claude Code CLI 深度推理
+通用办公:    WorkBuddy（腾讯）/ QoderWork（阿里）/ Claude Cowork（Anthropic）
+重活代理:    OpenCode + Kimi K3 / DeepSeek（开源 + 国产旗舰模型）
+混合:       Trae/Qoder 开发 + Claude Code CLI 深度推理
 ```
 
 ### 关键决策点
@@ -1343,18 +1504,20 @@ CI/CD:      Gemini CLI / Codex CLI（流水线集成）
 | 想要最安全的沙箱执行 | Codex CLI（三级内核沙箱） |
 | 关心隐私、不想代码上云 | OpenCode + 本地模型 |
 | 需要背景异步工作 | Codex Desktop（Background Computer Use） |
-| 想要最大的上下文窗口 | Gemini CLI（1M tokens） |
+| 想要最大的上下文窗口 | Antigravity CLI / Gemini 3（1M tokens） |
 | 想用最小的改动提升效率 | GitHub Copilot（补全最强） |
 | 想要完全开源 + 角色化团队 | OpenCode + Roo Code |
-| 想要最新的前沿特性 | Claude Code（Auto Dream、Skills、Routines） |
+| 想要最新的前沿特性 | Claude Code（Auto Dream、Skills、`/goal`、Agent View） |
 | 预算有限 + 中文场景 | Trae（国内版免费，中文理解自然） |
-| 阿里云 / Java/Go 后端开发 | 通义灵码（Qwen-Coder + 阿里云生态） |
+| 阿里云 / Java/Go 后端开发 | Qoder / 通义灵码（Qwen3-Coder + 阿里云生态） |
 | 微信小程序 / 腾讯云开发 | CodeBuddy（生态闭环，一站式） |
+| 需要"通用办公 + 编码"双 Agent | Claude Code + Cowork / CodeBuddy + WorkBuddy / Qoder + QoderWork |
+| 想自托管开源旗舰模型做长程编码 | Kimi K3（2.8T，7.27 开源）/ Qwen3-Coder |
 | 数据不出境的合规要求 | 通义灵码 / CodeBuddy 私有化部署 |
 
 ---
 
-> **备注**：本文档基于 2026 年 5 月可获取的最新资料。AI 编程工具领域更新极快，建议定期查看各工具的官方 Changelog。定价和配额可能随时调整，以官方页面为准。
+> **备注**：本文档基于 2026 年 7 月 24 日可获取的最新资料。AI 编程工具领域更新极快，建议定期查看各工具的官方 Changelog。模型基准多为厂商自报且使用不同 harness，跨模型横比仅供参考；定价和配额可能随时调整，以官方页面为准。
 
 ---
 
@@ -1386,6 +1549,7 @@ CI/CD:      Gemini CLI / Codex CLI（流水线集成）
 | Google A2A 发布公告 | [developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability](https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/) |
 | Google Gemini 3 发布 | [blog.google/products-and-platforms/products/gemini/gemini-3](https://blog.google/products-and-platforms/products/gemini/gemini-3/) |
 | Google Gemini CLI 发布 | [blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-cli-open-source-ai-agent](https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-cli-open-source-ai-agent/) |
+| Gemini CLI → Antigravity CLI 迁移公告 | [developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) |
 | GitHub Copilot 计划与定价 | [github.com/features/copilot/plans](https://github.com/features/copilot/plans) |
 | GitHub Copilot AI Credits 计费变更 | [github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing](https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/) |
 | GitHub Copilot Agent Mode 文档 | [docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp](https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp) |
@@ -1414,6 +1578,22 @@ CI/CD:      Gemini CLI / Codex CLI（流水线集成）
 | 通义灵码 | [lingma.aliyun.com](https://lingma.aliyun.com/) |
 | 通义灵码 Quest 更新日志 | [help.aliyun.com/zh/lingma/product-overview/changelogs-of-202602](https://help.aliyun.com/zh/lingma/product-overview/changelogs-of-202602) |
 | CodeBuddy | [codebuddy.ai](https://codebuddy.ai/) |
+| Qoder（阿里，通义灵码演进） | [qoder.com](https://qoder.com/en) |
+| Qwen Code（阿里官方 CLI） | [github.com/QwenLM/qwen-code](https://github.com/QwenLM/qwen-code) |
+| Qwen3-Coder | [qwenlm.github.io/blog/qwen3-coder](https://qwenlm.github.io/blog/qwen3-coder/) |
+| Qwen3.7-Max 评测 | [felloai.com/qwen-3-7-max-review](https://felloai.com/qwen-3-7-max-review/) |
+| Qwen3.8（2.4T 预览） | [felloai.com/qwen-3-8](https://felloai.com/qwen-3-8/) |
+| Kimi K3 快速开始 | [platform.kimi.ai/docs/guide/kimi-k3-quickstart](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart) |
+| Kimi K3 发布博客 | [kimi.com/blog/kimi-k3](https://www.kimi.com/blog/kimi-k3) |
+| Claude Fable 5 & Mythos 5 基准 | [vellum.ai/blog/claude-fable-5-and-mythos-5-benchmarks-explained](https://www.vellum.ai/blog/claude-fable-5-and-mythos-5-benchmarks-explained) |
+| Claude 模型总览（官方） | [platform.claude.com/docs/en/about-claude/models/overview](https://platform.claude.com/docs/en/about-claude/models/overview) |
+| Claude Code 更新日志（官方） | [code.claude.com/docs/en/whats-new](https://code.claude.com/docs/en/whats-new) |
+| Claude Cowork（办公 Agent） | [cnbc.com/2026/02/24/anthropic-claude-cowork-office-worker](https://www.cnbc.com/2026/02/24/anthropic-claude-cowork-office-worker.html) |
+| Claude Sonnet 5 发布（TechCrunch） | [techcrunch.com/2026/06/30/anthropic-launches-claude-sonnet-5-as-a-cheaper-way-to-run-agents](https://techcrunch.com/2026/06/30/anthropic-launches-claude-sonnet-5-as-a-cheaper-way-to-run-agents/) |
+| Codex SUPER APP 升级（官方） | [openai.com/index/introducing-upgrades-to-codex](https://openai.com/index/introducing-upgrades-to-codex/) |
+| Codex 接入 JetBrains / Copilot | [github.blog/changelog/2026-07-07-codex-as-agent-provider-...](https://github.blog/changelog/2026-07-07-codex-as-agent-provider-and-agentic-enhancements-in-jetbrains-ides/) |
+| 国内厂商 Code+Work 趋势（36kr） | [eu.36kr.com/en/p/3878580738158852](https://eu.36kr.com/en/p/3878580738158852) |
+| Kimi K3 横向对比（whatllm） | [whatllm.org/blog/kimi-k3](https://whatllm.org/blog/kimi-k3) |
 | Cline | [cline.bot](https://cline.bot/) / [github.com/cline/cline](https://github.com/cline/cline) |
 | Roo Code | [roocode.com](https://roocode.com/) |
 | Continue | [continue.dev](https://www.continue.dev/) |
