@@ -24,6 +24,30 @@ Agent 开发正经历从"写代码描述如何做"到"写配置描述要什么"�
 
 **三个阶段**：代码优先（2023–2024）→ 声明式定义（2025）→ 标准化与互操作（2026）
 
+### 3. 大模型微调技术史：从神经网络到推理模型
+
+> 面向零基础学习者 | 更新至 2026 年 6 月 | 18 章 + 21 篇核心论文 + 术语速查表
+
+以技术演进的时间脉络为主线，系统梳理大模型微调的完整知识谱系。从达特茅斯会议与符号/连接主义之争，到神经网络的两次寒冬与反向传播复兴，到 Word2Vec / RNN / LSTM 的序列建模困境，到 Transformer 革命与 GPT / BERT 路线之争，到缩放定律与基座模型，到 RLHF 对齐突破，到 LoRA / QLoRA / DoRA 的参数高效微调民主化，再到 DPO / GRPO 简化革命与 DeepSeek-R1 推理模型时代。
+
+**核心脉络**：达特茅斯 → 寒冬复兴 → Transformer → 预训练 → RLHF → LoRA/QLoRA → DPO/GRPO → 推理模型 → 开源浪潮
+
+### 4. RAG 技术史：从信息检索到智能体检索增强
+
+> 面向零基础学习者 | 更新至 2026 年 6 月 | 19 章 + 17 篇核心论文 + 术语速查表
+
+系统梳理检索增强生成（RAG）所依赖的完整知识谱系。从 1945 年 memex 设想与克兰菲尔德范式，到 TF-IDF / 向量空间模型 / BM25 / PageRank，到 Word2Vec / BERT 的语义觉醒，到 DPR / ColBERT / BGE-M3 的稠密检索，到向量数据库（FAISS / Pinecone / Milvus），到 RAG 范式确立与工程化（LangChain / LlamaIndex / Haystack / RAGAS），直至 GraphRAG / Agentic RAG / 多模态 RAG（ColPali）的最新进展。
+
+**核心脉络**：信息检索 → 关键词/概率检索 → 语义嵌入 → 稠密检索 → 向量数据库 → RAG → GraphRAG/Agentic/多模态
+
+### 5. 自建服务器：服务部署、服务关系与反向代理（通用版）
+
+> 通用版范例 | PVE + Docker + nginx | 含 mermaid 架构图与避坑清单
+
+聚焦自建服务器的三件事：**服务部署、服务关系、反向代理**。以「Proxmox VE 宿主 + Ubuntu / Docker 业务 VM + nginx 容器化反代」为范例，覆盖硬件选型、网络三阶段演进、PVE / Ubuntu / Docker 部署、Docker 双网络隔离、AI 工具链订阅聚合（cliproxyapi + cc-switch 多端复用）、个人知识库（Zotero + Obsidian 全链路）、反向代理路由与子路径两种模式、三层备份与运维避坑。
+
+**核心架构**：PVE 只做虚拟化 → Docker 跑全部业务 → nginx 容器化统一反代（仅暴露 80 端口）
+
 ---
 
 ## 📊 速览：关键对比表
@@ -70,6 +94,25 @@ Agent 开发正经历从"写代码描述如何做"到"写配置描述要什么"�
 | **Auto Dream** | 学术研究 | Sleep-time Compute 论文 | 生产化（Claude Code） |
 | **Agent 编排** | 实验阶段 | LangGraph 主导 | 多范式并存 |
 
+### RAG 检索范式演进
+
+| 范式 | 核心思想 | 代表技术 | 适用场景 |
+|------|---------|---------|---------|
+| Naive RAG | 查询 → 检索 → 拼接生成 | DPR + BM25 | 简单问答 |
+| Advanced RAG | 查询重写 + 混合检索 + 重排 + 父子分块 | HyDE、RRF、bge-reranker | 生产级问答 |
+| GraphRAG | 知识图谱 + 层级社区摘要 | Leiden 社区检测 | 全局性 / 跨文档综合 |
+| Agentic RAG | 自主决策 + 自我反思 + 多跳 | Self-RAG、CRAG、LangGraph | 深度推理、高可靠 |
+| 多模态 RAG | 视觉语言模型端到端检索（绕过 OCR） | ColPali、ColQwen2 | PDF / 表格 / 图表 |
+
+### 自建服务器架构分层
+
+| 层 | 代表组件 | 职责与原则 |
+|------|---------|-----------|
+| 反代入口 | nginx 容器（proxy-net） | 唯一对外端口 80，容器名 DNS 反代 |
+| 应用层 | glance、alist、open-webui、code-server | proxy-net 互通，不直接暴露端口 |
+| 数据库层 | postgres、redis | db-net 内部访问，不发布宿主端口 |
+| 主机服务 | cliproxyapi、openclaw | AI 订阅聚合网关，systemd 进程 |
+
 ---
 
 ## 🎯 选型速查
@@ -85,6 +128,11 @@ Agent 开发正经历从"写代码描述如何做"到"写配置描述要什么"�
 | 国内开发 / 中文优先 | 通义灵码 + Trae |
 | 微信小程序 | CodeBuddy（腾讯） |
 | 企业合规 / 私有部署 | 通义灵码 / CodeBuddy 企业版 |
+| 简单知识问答 | Naive RAG（DPR / BM25） |
+| 生产级 RAG / 精确匹配 | Advanced RAG（混合检索 + 重排） |
+| 跨文档全局分析 | GraphRAG |
+| 自建服务器统一入口 | PVE + Docker + nginx 容器化反代 |
+| AI 订阅多端复用 | cliproxyapi（聚合）+ cc-switch（切换） |
 
 ---
 
